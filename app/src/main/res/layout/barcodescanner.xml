@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:id="@+id/frameLayout"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"></FrameLayout>
+
+    <Spinner
+        android:layout_width="186dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner"
+        android:spinnerMode="dropdown"
+        android:layout_below="@+id/frameLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/editText"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/spinner"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentEnd="false"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/label"
+        android:layout_gravity="right"
+        android:visibility="visible"
+        android:layout_below="@+id/home_btn"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:id="@+id/cancelBtn"
+        android:layout_below="@+id/label"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:onClick="cancelAudio"
+        android:visibility="gone" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        android:id="@+id/home_btn"
+        android:onClick="goHome"
+        android:layout_below="@+id/spinner"
+        android:layout_marginTop="40dp" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView"
+        android:paddingTop="350dp"
+        android:fillViewport="false">
+
+        <TableLayout
+            android:layout_width="400dp"
+            android:layout_height="100dp"
+            android:id="@+id/layout_1"></TableLayout>
+    </ScrollView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Id"
+        android:id="@+id/viewId"
+        android:layout_toEndOf="@+id/home_btn"
+        android:layout_marginTop="320dp"
+        android:layout_marginLeft="40dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Trait"
+        android:id="@+id/viewTrait"
+        android:layout_toRightOf="@+id/viewId"
+        android:layout_toEndOf="@+id/viewId"
+        android:layout_marginTop="320dp"
+        android:layout_marginLeft="70dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Val"
+        android:id="@+id/viewVal"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="170dp"
+        android:layout_toEndOf="@+id/viewId"
+        android:layout_marginTop="320dp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

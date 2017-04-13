@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,6 +41,7 @@ public class MainPage extends AppCompatActivity {
     Button captureScreenShot;
     private Button toOnline;
     Context context;
+    private static final int MY_REQUEST_CODE = 100;
     // Storage Permissions variables
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -138,15 +140,35 @@ public class MainPage extends AppCompatActivity {
         csv.exportDataBaseIntoCSV();
     }
 
-    public void goToScanner(View view){
-        Intent intent = new Intent(this, BarcodeScanner.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("voiceSpeech", "Audio Input Will Show Up Here");
-        bundle.putBoolean("timer", false);
-        bundle.putBoolean("camera", true);
-        intent.putExtras(bundle);
-        startActivity(intent);
-        finish();
+    public void goToScanner(View view) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA},
+                        MY_REQUEST_CODE);
+
+
+            } else {
+                Intent intent = new Intent(this, BarcodeScanner.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("voiceSpeech", "Audio Input Will Show Up Here");
+                bundle.putBoolean("timer", false);
+                bundle.putBoolean("camera", true);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                finish();
+            }
+        }
+        else {
+            Intent intent = new Intent(this, BarcodeScanner.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("voiceSpeech", "Audio Input Will Show Up Here");
+            bundle.putBoolean("timer", false);
+            bundle.putBoolean("camera", true);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            finish();
+        }
     }
 
    /* public void goToOnline(View view){
@@ -154,7 +176,8 @@ public class MainPage extends AppCompatActivity {
         startActivity(intent);
     } */
 
-    public void view_All(){
+
+        public void view_All(){
         viewAll.setOnClickListener(
                 new View.OnClickListener(){
                     @Override

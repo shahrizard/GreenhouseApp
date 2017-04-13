@@ -32,6 +32,7 @@ import java.io.FileWriter;
 public class ExportDatabaseCSVTask extends AppCompatActivity{
 
     Context context;
+    public ExportDatabaseCSVTask(){};
     public ExportDatabaseCSVTask(Context context) {
         this.context=context;
     }

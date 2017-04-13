@@ -2,6 +2,7 @@ package com.example.admin.greenhouseapp;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -9,17 +10,20 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.example.admin.greenhouse.R;import com.google.zxing.Result;
 
@@ -42,10 +46,11 @@ public class BarcodeScanner extends AppCompatActivity {
     private final int REQ_CODE_SPEECH_OUTPUT = 143;
 
     private Button cancelButton;
-    private TextView viewId, viewTrait, viewVal, voiceInText, label;
+    private TextView viewId, viewTrait, viewVal, voiceInText, label, trait;
     int count;
-    String existsID, voiceText;
+    String existsID, voiceText, traitGiven;
 
+    ImageButton next;
     DatabaseHelper myDb;
     CountDownTimer clock;
     Spinner spinner;
@@ -70,8 +75,10 @@ public class BarcodeScanner extends AppCompatActivity {
         viewId = (TextView) findViewById(R.id.viewId);
         viewTrait = (TextView) findViewById(R.id.viewTrait);
         viewVal = (TextView) findViewById(R.id.viewVal);
+        trait = (TextView) findViewById(R.id.trait);
+        next = (ImageButton) findViewById(R.id.nextText);
         cancelButton.setText("");
-
+        traitGiven = "LeafRust";
    //     homeButton = (Button) findViewById(R.id.home_btn);
 
         bundle = getIntent().getExtras();
@@ -81,31 +88,29 @@ public class BarcodeScanner extends AppCompatActivity {
         voiceInText.setText(bundle.getString("voiceSpeech"));
         frame =  (FrameLayout) findViewById(R.id.frameLayout);
 
-        //==spinner
-        traitValueAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, traitValues);
-        traitValueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setAdapter(traitValueAdapter);
-
         //==scan
         scannerView = new ZXingScannerView(this);
         scannerView.setResultHandler(new ZXingScannerResultHandler());
 
-        //if camera is true, it will start the camera on the upper screen
+        //if camera is true, it will start the camera on the upper screen and no timer will be started
         if (camera) {
             setupTable();
+            trait.setText("LeafRust");
             frame.addView(scannerView);
             scannerView.startCamera();
         }
         //==timer, if timer is true, will set the timer, and stop the camera
         if (timer){
             counter = 3;
+            trait.setVisibility(View.INVISIBLE);
+            next.setVisibility(View.GONE);
             cancelButton.setVisibility(View.VISIBLE);
             viewId.setVisibility(View.GONE);
             viewVal.setVisibility(View.GONE);
             viewTrait.setVisibility(View.GONE);
             cancelButton.setText("Retry Audio");
             voiceText = bundle.getString("voiceText"); //notice bundle grab
+            traitGiven = bundle.getString("traitGiven");
 
                 clock = new CountDownTimer(5000, 1000){
                     public void onTick(long millisUntilFinished){
@@ -122,7 +127,7 @@ public class BarcodeScanner extends AppCompatActivity {
                         intent.putExtras(bundle);
                         startActivity(intent);
                         finish();
-                        myDb.barcodeInsert(existsID, voiceText); //will insert if not exists, will update if exists
+                        myDb.barcodeInsert(existsID, traitGiven, voiceText); //will insert if not exists, will update if exists
                         Toast.makeText(BarcodeScanner.this, "Insert Complete!", Toast.LENGTH_SHORT).show();
                     }
                 }.start();
@@ -130,6 +135,16 @@ public class BarcodeScanner extends AppCompatActivity {
         // end of onCreate constructor
     }
 //======================= Other Methods below
+    public void nextTextShow(View view){ //for trait selection
+        if (traitGiven == "LeafRust"){
+            traitGiven = "Color";
+            trait.setText("Color");
+        }
+        else if (traitGiven == "Color"){
+            traitGiven = "LeafRust";
+            trait.setText("LeafRust");
+        }
+    }
 
     //set up table sets up the below table of information on the camera screen
     public void setupTable(){
@@ -139,15 +154,11 @@ public class BarcodeScanner extends AppCompatActivity {
         while(res.moveToNext()) {
             TableRow tableRow = new TableRow(this);
             layout.addView(tableRow);
-            Button button = new Button(this);
-            button.setWidth(5);
-            button.setText("Edit");
+            ImageButton button = new ImageButton(this);
+            button.setImageResource(getResources().getIdentifier("abc_ic_menu_overflow_material", "drawable", getPackageName()));
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, DidYouMeanThis.class);
-                    Bundle bundle = new Bundle();
-                    intent.putExtras(bundle);
-                    startActivity(intent);
+
                 }
             });
             TextView tview = new TextView(this);
@@ -159,9 +170,9 @@ public class BarcodeScanner extends AppCompatActivity {
             tview.setText(res.getString(1));
             tview1.setText(res.getString(2));
             tview2.setText(res.getString(3));
-            tview.setPadding(0, 10, 0, 10);
-            tview1.setPadding(30, 10, 30, 10);
-            tview2.setPadding(50,10,50,10);
+            tview.setPadding(10, 30, 10, 0);
+            tview1.setPadding(30, 30, 30, 0);
+            tview2.setPadding(50,30,50,10);
             tableRow.addView(button);
             tableRow.addView(tview);
             tableRow.addView(tview1);
@@ -234,6 +245,7 @@ public class BarcodeScanner extends AppCompatActivity {
                     bundle.putString("voiceSpeech", VoiceInText.get(0));
                     bundle.putBoolean("timer", true);
                     bundle.putString("existsID", existsID);
+                    bundle.putString("traitGiven", traitGiven);
                     bundle.putString("voiceText", voiceText);
                     bundle.putBoolean("camera", false);
                     intent.putExtras(bundle);

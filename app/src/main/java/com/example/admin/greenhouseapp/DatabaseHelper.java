@@ -52,12 +52,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("delete from " + TABLE_NAME);
     }
 
-    public void barcodeInsert(String id, String voiceText) {
+    public void barcodeInsert(String id, String trait, String voiceText) {
         Cursor res = db.rawQuery("select * from Plant_Info where BarcodeID='" + id + "'", null);
         int count = res.getCount();
         if(count == 0){
             db.execSQL("INSERT INTO Plant_Info (BarcodeID, Trait, Val) VALUES ('"+
-                    id + "','LeafRust','" + voiceText
+                    id + "','" + trait + "','" + voiceText
                     + "')");
 
         }

@@ -30,7 +30,7 @@ import java.util.List;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class MainPage extends AppCompatActivity {
-    private Button scan_btn;
+    private Button goTraits;
     private Button viewAll;
     DatabaseHelper myDb;
     private ZXingScannerView scannerView;
@@ -68,6 +68,7 @@ public class MainPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(com.example.admin.greenhouse.R.layout.activity_reader);
         myDb = new DatabaseHelper(this);
+        goTraits = (Button) findViewById(R.id.trait_btn);
      //   scan_btn = (Button) findViewById(com.example.admin.greenhouse.R.id.scan_btn);
         viewAll = (Button) findViewById(com.example.admin.greenhouse.R.id.viewAll);
         instruct = (TextView) findViewById(R.id.instructions);
@@ -78,6 +79,11 @@ public class MainPage extends AppCompatActivity {
                 "just press scan QR/barcode and start scanning! " +
                 "When scanning a plant, make sure the plant has a proper PlantID/PlantName, after that say the values " +
                 "you want to be stored. If you make a mistake, don't worry you can retry!");
+        for (int i = 0; i<2; i++){
+            myDb.barcodeInsert("123456789-" + Integer.toString(i), "LeafRust", "3");
+        }
+        myDb.insertTraitValues("Color");
+        myDb.insertTraitValues("LeafRust");
         /*
         scan_btn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -135,12 +141,19 @@ public class MainPage extends AppCompatActivity {
     }
 */
 
+    public void gotoTraits(View view){
+
+        Intent intent = new Intent(this, TraitsList.class);
+        startActivity(intent);
+    }
+
     public void exportData(View view){
         ExportDatabaseCSVTask csv = new ExportDatabaseCSVTask(this);
         csv.exportDataBaseIntoCSV();
     }
 
     public void goToScanner(View view) {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -175,7 +188,6 @@ public class MainPage extends AppCompatActivity {
         Intent intent = new Intent(this, OnlineLogin.class);
         startActivity(intent);
     } */
-
 
         public void view_All(){
         viewAll.setOnClickListener(

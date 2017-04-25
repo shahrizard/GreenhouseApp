@@ -21,6 +21,7 @@
         <activity android:name="com.example.admin.greenhouseapp.BarcodeScanner"/>
         <activity android:name="com.example.admin.greenhouseapp.CRUDplants"/>
         <activity android:name="com.example.admin.greenhouseapp.ExportDatabaseCSVTask"/>
+        <activity android:name="com.example.admin.greenhouseapp.TraitsList"/>
     </application>
 
 </manifest>

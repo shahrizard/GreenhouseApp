@@ -29,6 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "BarcodeID VARCHAR, Trait VARCHAR, Val VARCHAR)");
+        db.execSQL("CREATE TABLE Traits_List (TraitName VARCHAR NOT NULL UNIQUE)");
     }
 
     @Override
@@ -42,8 +43,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public int getRowCount(){
-        Cursor res = db.rawQuery("select * from Plant_Info", null);
+    public Cursor getTraitData(){
+        Cursor res = db.rawQuery("select * from Traits_List", null);
+        return res;
+    }
+
+    public int getTraitRowCount(){
+        Cursor res = db.rawQuery("select * from Traits_List", null);
         int count = res.getCount();
         return count;
     }
@@ -65,13 +71,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean deleteSpecificRow(String pName){
+    public boolean deleteSpecificRow(String barcodeID, String val){
         try {
-            //db.execSQL("DELETE FROM PlantInformation WHERE PlantName='" + pName + "'");
+            db.execSQL("DELETE FROM Plant_Info WHERE BarcodeID='" + barcodeID + "' AND Val='" + val + "'");
         }
         catch (SQLException ex){
             return false;
         }
         return true;
+    }
+
+    public boolean deleteTrait(String trait){
+        try {
+            db.execSQL("DELETE FROM Traits_List WHERE TraitName='" + trait +  "'");
+        }
+        catch (SQLException ex){
+            return false;
+        }
+        return true;
+    }
+
+    public void insertTraitValues(String trait){
+        try {
+        db.execSQL("INSERT INTO Traits_List (TraitName) VALUES ('"+
+                trait + "')");
+        }
+        catch (SQLException ex){
+            ex.printStackTrace();
+        }
     }
 }

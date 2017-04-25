@@ -55,8 +55,12 @@ public class ExportDatabaseCSVTask extends AppCompatActivity{
             exportDir.mkdirs();
         }
 
-        File file = new File(exportDir, "plantdata.csv");
+        File file_check = new File(exportDir, "plantdata.csv");
+        if(file_check.exists()){
+            file_check.delete();
 
+        }
+        File file = new File(exportDir, "plantdata.csv");
         try
         {
             file.createNewFile();

@@ -30,7 +30,7 @@ public class CRUDplants extends AppCompatActivity {
     public void load(){
         TableLayout layout = (TableLayout) findViewById(R.id.layout_1);
         layout.setPadding(0,0, 0, 0);
-        count = myDb.getRowCount();
+        count = 3;
         for (int c = 0; c < 15; c++) {
                 TableRow tableRow = new TableRow(this);
                 tableRow.setMinimumHeight(300);

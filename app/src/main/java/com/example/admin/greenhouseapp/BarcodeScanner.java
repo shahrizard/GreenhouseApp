@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -27,6 +29,8 @@ import android.widget.ViewFlipper;
 
 import com.example.admin.greenhouse.R;import com.google.zxing.Result;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -38,7 +42,7 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 /**
  * Created by Admin on 4/4/2017.
  */
-public class BarcodeScanner extends AppCompatActivity {
+public class BarcodeScanner extends AppCompatActivity{
 
     private ZXingScannerView scannerView;
     private FrameLayout frame;
@@ -46,10 +50,14 @@ public class BarcodeScanner extends AppCompatActivity {
     private final int REQ_CODE_SPEECH_OUTPUT = 143;
 
     private Button cancelButton;
-    private TextView viewId, viewTrait, viewVal, voiceInText, label, trait;
+    private TextView viewId, viewTrait, viewVal, voiceInText, label, trait, dataBeingEdited;
     int count;
     String existsID, voiceText, traitGiven;
 
+    TextView selVersion;
+    private String[] state = { "", "Delete", "Edit" };
+
+  //  Spinner spinnerOsversions;
     ImageButton next;
     DatabaseHelper myDb;
     CountDownTimer clock;
@@ -58,8 +66,8 @@ public class BarcodeScanner extends AppCompatActivity {
     Bundle bundle;
     boolean timer, camera;
     public int counter;
-    ArrayAdapter<String> traitValueAdapter;
-    String traitValues[] = { "LeafRust", "Height" };
+    int index;
+    ArrayList<String> traits;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +77,7 @@ public class BarcodeScanner extends AppCompatActivity {
 
         myDb = new DatabaseHelper(this);
 
+        dataBeingEdited = (TextView) findViewById(R.id.dataBeingEdited);
         voiceInText = (TextView) findViewById(R.id.editText);
         label = (TextView) findViewById(R.id.label);
         cancelButton = (Button) findViewById(R.id.cancelBtn);
@@ -78,7 +87,8 @@ public class BarcodeScanner extends AppCompatActivity {
         trait = (TextView) findViewById(R.id.trait);
         next = (ImageButton) findViewById(R.id.nextText);
         cancelButton.setText("");
-        traitGiven = "LeafRust";
+
+
    //     homeButton = (Button) findViewById(R.id.home_btn);
 
         bundle = getIntent().getExtras();
@@ -92,10 +102,22 @@ public class BarcodeScanner extends AppCompatActivity {
         scannerView = new ZXingScannerView(this);
         scannerView.setResultHandler(new ZXingScannerResultHandler());
 
+        //trait set up
+        count = myDb.getTraitRowCount();
+        traits = new ArrayList<String>(count);
+        Cursor res = myDb.getTraitData();
+        int i = 0;
+        while(res.moveToNext()){
+            traits.add(res.getString(0));
+            i++;
+        }
+        index = 0;
+        traitGiven = traits.get(index);
+
         //if camera is true, it will start the camera on the upper screen and no timer will be started
         if (camera) {
             setupTable();
-            trait.setText("LeafRust");
+            trait.setText("Color");
             frame.addView(scannerView);
             scannerView.startCamera();
         }
@@ -103,15 +125,16 @@ public class BarcodeScanner extends AppCompatActivity {
         if (timer){
             counter = 3;
             trait.setVisibility(View.INVISIBLE);
-            next.setVisibility(View.GONE);
+            next.setVisibility(View.INVISIBLE);
             cancelButton.setVisibility(View.VISIBLE);
+            dataBeingEdited.setVisibility(View.VISIBLE);
             viewId.setVisibility(View.GONE);
             viewVal.setVisibility(View.GONE);
             viewTrait.setVisibility(View.GONE);
             cancelButton.setText("Retry Audio");
             voiceText = bundle.getString("voiceText"); //notice bundle grab
             traitGiven = bundle.getString("traitGiven");
-
+            dataBeingEdited.setText("Data Entry being edited: " + existsID + " " + traitGiven);
                 clock = new CountDownTimer(5000, 1000){
                     public void onTick(long millisUntilFinished){
                         label.setText(String.valueOf(counter));
@@ -136,14 +159,43 @@ public class BarcodeScanner extends AppCompatActivity {
     }
 //======================= Other Methods below
     public void nextTextShow(View view){ //for trait selection
-        if (traitGiven == "LeafRust"){
-            traitGiven = "Color";
-            trait.setText("Color");
+        index++;
+        if (index == count) {
+            index = 0;
         }
-        else if (traitGiven == "Color"){
-            traitGiven = "LeafRust";
-            trait.setText("LeafRust");
-        }
+            traitGiven = traits.get(index);
+            trait.setText(traits.get(index));
+
+    }
+
+
+    public void onBackPressed(String id, String val) { //confirmation dialog
+        final String pos = id;
+        final String pos2 = val;
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Deleting " + id)
+                .setMessage("Are you sure you want to delete " + id + " with a value of " + val + "?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        myDb.deleteSpecificRow(pos, pos2);
+                        Intent intent = new Intent(context, BarcodeScanner.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean("timer", false);
+                        bundle.putString("existsID", existsID);
+                        bundle.putString("traitGiven", traitGiven);
+                        bundle.putString("voiceText", "Audio Input Will Show Up Here" );
+                        bundle.putBoolean("camera", true);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                        finish();
+                    }
+
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     //set up table sets up the below table of information on the camera screen
@@ -155,18 +207,39 @@ public class BarcodeScanner extends AppCompatActivity {
             TableRow tableRow = new TableRow(this);
             layout.addView(tableRow);
             ImageButton button = new ImageButton(this);
-            button.setImageResource(getResources().getIdentifier("abc_ic_menu_overflow_material", "drawable", getPackageName()));
+            button.setImageResource(getResources().getIdentifier("abc_ic_clear_material", "drawable", getPackageName()));
+            final String pos = res.getString(1);
+            final String pos1 = res.getString(2);
+            final String pos2 = res.getString(3);
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-
+                    onBackPressed(pos, pos2);
                 }
             });
+
+            ImageButton button1 = new ImageButton(this);
+            button1.setImageResource(getResources().getIdentifier("abc_ic_voice_search_api_material", "drawable", getPackageName()));
+            button1.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    existsID = pos;
+                    traitGiven = pos1;
+                    OpenMic();
+                }
+            });
+
             TextView tview = new TextView(this);
             TextView tview1 = new TextView(this);
             TextView tview2 = new TextView(this);
-            tview.setTextSize(TypedValue.COMPLEX_UNIT_PX, 60);
-            tview1.setTextSize(TypedValue.COMPLEX_UNIT_PX, 60);
-            tview2.setTextSize(TypedValue.COMPLEX_UNIT_PX, 60);
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                tview.setTextSize(TypedValue.COMPLEX_UNIT_PX, 70);
+                tview1.setTextSize(TypedValue.COMPLEX_UNIT_PX, 70);
+                tview2.setTextSize(TypedValue.COMPLEX_UNIT_PX, 70);
+            }
+            else {
+                tview.setTextSize(TypedValue.COMPLEX_UNIT_PX, 50);
+                tview1.setTextSize(TypedValue.COMPLEX_UNIT_PX, 50);
+                tview2.setTextSize(TypedValue.COMPLEX_UNIT_PX, 50);
+            }
             tview.setText(res.getString(1));
             tview1.setText(res.getString(2));
             tview2.setText(res.getString(3));
@@ -174,6 +247,7 @@ public class BarcodeScanner extends AppCompatActivity {
             tview1.setPadding(30, 30, 30, 0);
             tview2.setPadding(50,30,50,10);
             tableRow.addView(button);
+            tableRow.addView(button1);
             tableRow.addView(tview);
             tableRow.addView(tview1);
             tableRow.addView(tview2);
@@ -267,4 +341,40 @@ public class BarcodeScanner extends AppCompatActivity {
         }
     }
     //=======end of audio input
+
+    /* This commmented out code is using the Overflow menu - put inside setup Table method
+            spinnerOsversions = new Spinner(this);
+            ArrayAdapter<String> adapter_state = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_spinner_item, state);
+            adapter_state
+                    .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerOsversions.setAdapter(adapter_state);
+            final String pos = res.getString(1);
+            final String pos2 = res.getString(3);
+            spinnerOsversions.setSelection(0);
+            spinnerOsversions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                           int arg2, long arg3) {
+                    String selState = (String) spinnerOsversions.getSelectedItem();
+                    if(selState == "Delete"){
+                        myDb.deleteSpecificRow(pos, pos2);
+                        Intent intent = new Intent(context, BarcodeScanner.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean("timer", false);
+                        bundle.putString("existsID", existsID);
+                        bundle.putString("traitGiven", traitGiven);
+                        bundle.putString("voiceText", "Audio Input Will Show Up Here" );
+                        bundle.putBoolean("camera", true);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+
+                }
+            }); */
 }

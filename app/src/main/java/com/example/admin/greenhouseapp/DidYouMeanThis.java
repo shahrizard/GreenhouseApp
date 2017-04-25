@@ -48,7 +48,7 @@ public class DidYouMeanThis extends AppCompatActivity {
 
     public void deleteRow(View view){
         boolean result = false;
-        result = myDb.deleteSpecificRow(pName);
+        result = myDb.deleteSpecificRow(pName, pName);
         if(result){
             Toast.makeText(this, "Deleted!", Toast.LENGTH_LONG).show();
         }

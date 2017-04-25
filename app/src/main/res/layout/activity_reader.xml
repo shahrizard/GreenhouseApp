@@ -40,8 +40,8 @@
         android:text="Delete All Data"
         android:id="@+id/del_button"
         android:onClick="deleteAllData"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/viewAll" />
+        android:layout_below="@+id/export_button"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -59,8 +59,8 @@
         android:text="Export To CSV"
         android:id="@+id/export_button"
         android:onClick="exportData"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/del_button" />
+        android:layout_below="@+id/trait_btn"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -73,5 +73,14 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:textStyle="bold" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trait List"
+        android:id="@+id/trait_btn"
+        android:layout_below="@+id/viewAll"
+        android:layout_centerHorizontal="true"
+        android:onClick="gotoTraits" />
 
 </RelativeLayout>

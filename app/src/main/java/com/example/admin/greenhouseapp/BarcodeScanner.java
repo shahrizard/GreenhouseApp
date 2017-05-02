@@ -88,9 +88,6 @@ public class BarcodeScanner extends AppCompatActivity{
         next = (ImageButton) findViewById(R.id.nextText);
         cancelButton.setText("");
 
-
-   //     homeButton = (Button) findViewById(R.id.home_btn);
-
         bundle = getIntent().getExtras();
         camera = bundle.getBoolean("camera");
         existsID = bundle.getString("existsID");
@@ -113,7 +110,6 @@ public class BarcodeScanner extends AppCompatActivity{
         }
         index = 0;
         traitGiven = traits.get(index);
-
         //if camera is true, it will start the camera on the upper screen and no timer will be started
         if (camera) {
             setupTable();
@@ -231,12 +227,12 @@ public class BarcodeScanner extends AppCompatActivity{
             TextView tview1 = new TextView(this);
             TextView tview2 = new TextView(this);
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                tview.setTextSize(TypedValue.COMPLEX_UNIT_PX, 70);
-                tview1.setTextSize(TypedValue.COMPLEX_UNIT_PX, 70);
-                tview2.setTextSize(TypedValue.COMPLEX_UNIT_PX, 70);
+                tview.setTextSize(TypedValue.COMPLEX_UNIT_PX, 40);
+                tview1.setTextSize(TypedValue.COMPLEX_UNIT_PX, 60);
+                tview2.setTextSize(TypedValue.COMPLEX_UNIT_PX, 60);
             }
             else {
-                tview.setTextSize(TypedValue.COMPLEX_UNIT_PX, 50);
+                tview.setTextSize(TypedValue.COMPLEX_UNIT_PX, 30);
                 tview1.setTextSize(TypedValue.COMPLEX_UNIT_PX, 50);
                 tview2.setTextSize(TypedValue.COMPLEX_UNIT_PX, 50);
             }
@@ -312,11 +308,19 @@ public class BarcodeScanner extends AppCompatActivity{
             case REQ_CODE_SPEECH_OUTPUT: {
                 if (resultCode == RESULT_OK && null != data){
                     ArrayList<String> VoiceInText = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    voiceInText.setText(VoiceInText.get(0));
                     voiceText = VoiceInText.get(0);
+                    voiceText = voiceText.replace("'", ""); //this is by default, will throw an exception if we submit apostrophes
+                    Cursor res = myDb.getAudioData();
+                    while(res.moveToNext()) {
+                        if (voiceText.contains(res.getString(0))){
+                            voiceText = voiceText.replace(res.getString(0), res.getString(1));
+                            break;
+                        }
+                    }
+                    voiceInText.setText(voiceText);
                     Intent intent = new Intent(context, BarcodeScanner.class);
                     Bundle bundle = new Bundle();
-                    bundle.putString("voiceSpeech", VoiceInText.get(0));
+                    bundle.putString("voiceSpeech", voiceText);
                     bundle.putBoolean("timer", true);
                     bundle.putString("existsID", existsID);
                     bundle.putString("traitGiven", traitGiven);

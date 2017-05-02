@@ -72,7 +72,7 @@ public class ExportDatabaseCSVTask extends AppCompatActivity{
             while(curCSV.moveToNext())
             {
                 //Which column you want to export you can add over here...
-                String arrStr[] ={curCSV.getString(0),curCSV.getString(1), curCSV.getString(2)};
+                String arrStr[] ={curCSV.getString(0),curCSV.getString(1), curCSV.getString(2), curCSV.getString(3)};
                 csvWrite.writeNext(arrStr);
             }
 

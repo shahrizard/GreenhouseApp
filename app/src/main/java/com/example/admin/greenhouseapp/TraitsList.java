@@ -80,6 +80,7 @@ public class TraitsList extends AppCompatActivity {
 
     public void addTrait(View view){
         String text = editText.getText().toString();
+        text.trim();
         if (text.length() < 1 || text.isEmpty()){
 
         }

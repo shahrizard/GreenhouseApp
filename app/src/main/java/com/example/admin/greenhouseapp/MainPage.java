@@ -4,11 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -80,7 +82,7 @@ public class MainPage extends AppCompatActivity {
                 "When scanning a plant, make sure the plant has a proper PlantID/PlantName, after that say the values " +
                 "you want to be stored. If you make a mistake, don't worry you can retry!");
         for (int i = 0; i<2; i++){
-            myDb.barcodeInsert("123456789-" + Integer.toString(i), "LeafRust", "3");
+        //    myDb.barcodeInsert("123456789-" + Integer.toString(i), "LeafRust", "3");
         }
         myDb.insertTraitValues("Color");
         myDb.insertTraitValues("LeafRust");
@@ -142,8 +144,12 @@ public class MainPage extends AppCompatActivity {
 */
 
     public void gotoTraits(View view){
-
         Intent intent = new Intent(this, TraitsList.class);
+        startActivity(intent);
+    }
+
+    public void gotoAudio(View view){
+        Intent intent = new Intent(this, AudioChange.class);
         startActivity(intent);
     }
 
@@ -215,7 +221,20 @@ public class MainPage extends AppCompatActivity {
     }
 
     public void deleteAllData(View view) {
-        myDb.emptyTableData();
+            new android.support.v7.app.AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Deleting all data")
+                    .setMessage("Are you sure you want to delete all data?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            myDb.emptyTableData();
+                        }
+
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
     }
 
 

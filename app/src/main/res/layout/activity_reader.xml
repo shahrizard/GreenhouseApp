@@ -59,7 +59,7 @@
         android:text="Export To CSV"
         android:id="@+id/export_button"
         android:onClick="exportData"
-        android:layout_below="@+id/trait_btn"
+        android:layout_below="@+id/button3"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -79,8 +79,20 @@
         android:layout_height="wrap_content"
         android:text="Trait List"
         android:id="@+id/trait_btn"
+        android:onClick="gotoTraits"
         android:layout_below="@+id/viewAll"
-        android:layout_centerHorizontal="true"
-        android:onClick="gotoTraits" />
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Audio Dictionary"
+        android:id="@+id/button3"
+        android:onClick="gotoAudio"
+        android:visibility="visible"
+        android:layout_below="@+id/trait_btn"
+        android:layout_alignLeft="@+id/BarcodeScanner"
+        android:layout_alignStart="@+id/BarcodeScanner" />
 
 </RelativeLayout>

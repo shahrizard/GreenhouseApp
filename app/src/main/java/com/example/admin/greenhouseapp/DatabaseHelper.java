@@ -30,6 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("create table " + TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "BarcodeID VARCHAR, Trait VARCHAR, Val VARCHAR)");
         db.execSQL("CREATE TABLE Traits_List (TraitName VARCHAR NOT NULL UNIQUE)");
+        db.execSQL("CREATE TABLE Audio_Dictionary (OldValue VARCHAR NOT NULL, NewValue VARCHAR NOT NULL)");
     }
 
     @Override
@@ -48,8 +49,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public Cursor getAudioData(){
+        Cursor res = db.rawQuery("select * from Audio_Dictionary", null);
+        return res;
+    }
+
     public int getTraitRowCount(){
         Cursor res = db.rawQuery("select * from Traits_List", null);
+        int count = res.getCount();
+        return count;
+    }
+
+    public int getAudioRowCount(){
+        Cursor res = db.rawQuery("select * from Audio_Dictionary", null);
         int count = res.getCount();
         return count;
     }
@@ -91,10 +103,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return true;
     }
 
+    public boolean deleteAudio(String to, String from){
+        try {
+            db.execSQL("DELETE FROM Audio_Dictionary WHERE OldValue='" + to +  "' AND NewValue ='" + from + "'");
+        }
+        catch (SQLException ex){
+            return false;
+        }
+        return true;
+    }
+
     public void insertTraitValues(String trait){
         try {
         db.execSQL("INSERT INTO Traits_List (TraitName) VALUES ('"+
                 trait + "')");
+        }
+        catch (SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    public void insertAudioValues(String from, String to){
+        try {
+            db.execSQL("INSERT INTO Audio_Dictionary (OldValue, NewValue) VALUES ('"+
+                    from + "','" + to + "')");
         }
         catch (SQLException ex){
             ex.printStackTrace();
